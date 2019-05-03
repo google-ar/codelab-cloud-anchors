@@ -93,8 +93,8 @@ public class CloudAnchorFragment extends ArFragment {
   }
 
   private synchronized void onResolveButtonPressed() {
-    ResolveDialogFragment dialog = new ResolveDialogFragment();
-    dialog.setOkListener(this::onShortCodeEntered);
+    ResolveDialogFragment dialog =
+        ResolveDialogFragment.createWithOkListener(this::onShortCodeEntered);
     dialog.show(getFragmentManager(), "Resolve");
   }
 

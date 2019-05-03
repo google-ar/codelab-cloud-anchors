@@ -29,3 +29,17 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.google.firebase:firebase-database:16.1.0'
 }
+
+task compileUxAssets {
+}
+
+preBuild.dependsOn compileUxAssets
+
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+sceneform.asset('models/andy.obj',
+        'default',
+        'models/andy.sfa',
+        'src/main/res/raw/andy')
+
+sceneform.before('compileUxAssets')

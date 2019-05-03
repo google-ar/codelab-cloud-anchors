@@ -11,3 +11,11 @@ local.properties
 
 # OS configurations.
 .DS_Store
+
+helpers/build/
+part1/build/
+part2/build/
+part3/build/
+part4/build/
+work/build/
+

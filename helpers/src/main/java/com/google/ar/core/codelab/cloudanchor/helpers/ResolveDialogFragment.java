@@ -44,12 +44,14 @@ public class ResolveDialogFragment extends DialogFragment {
     void onOkPressed(int dialogValue);
   }
 
+  public static ResolveDialogFragment createWithOkListener(OkListener listener) {
+    ResolveDialogFragment frag = new ResolveDialogFragment();
+    frag.okListener = listener;
+    return frag;
+  }
+
   private EditText shortCodeField;
   private OkListener okListener;
-
-  public void setOkListener(OkListener okListener) {
-    this.okListener = okListener;
-  }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
