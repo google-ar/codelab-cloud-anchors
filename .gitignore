@@ -1,0 +1,25 @@
+# Android Studio configuration.
+*.iml
+.idea/
+
+# Gradle configuration.
+.gradle/
+build/
+
+# User configuration.
+local.properties
+
+# OS configurations.
+.DS_Store
+
+# Other Build Artifacts
+helpers/build/
+part1/build/
+part2/build/
+part3/build/
+part4/build/
+work/build/
+
+# Compiled Sceneform Assets
+*.sfb
+

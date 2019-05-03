@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.google.ar.core.codelab.cloudanchor"
+
+        // 24 is the minimum since ARCore only works with 24 and higher.
+        minSdkVersion 26
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(":helpers")
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.8.0"
+}
+
+apply plugin: 'com.google.gms.google-services'
