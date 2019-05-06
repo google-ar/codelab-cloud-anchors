@@ -32,10 +32,7 @@ public class StorageManager {
     SharedPreferences sharedPrefs =
         activity.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
     int shortCode = sharedPrefs.getInt(NEXT_SHORT_CODE, INITIAL_SHORT_CODE);
-    sharedPrefs
-        .edit()
-        .putInt(NEXT_SHORT_CODE, shortCode + 1)
-        .apply();
+    sharedPrefs.edit().putInt(NEXT_SHORT_CODE, shortCode + 1).apply();
     return shortCode;
   }
 
