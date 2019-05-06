@@ -76,35 +76,31 @@ public final class SnackbarHelper {
   private void show(
       final Activity activity, final String message, final DismissBehavior dismissBehavior) {
     activity.runOnUiThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            messageSnackbar =
-                Snackbar.make(
-                    activity.findViewById(android.R.id.content),
-                    message,
-                    Snackbar.LENGTH_INDEFINITE);
-            messageSnackbar.getView().setBackgroundColor(BACKGROUND_COLOR);
-            if (dismissBehavior != DismissBehavior.HIDE) {
-              messageSnackbar.setAction("Dismiss", v -> messageSnackbar.dismiss());
-              if (dismissBehavior == DismissBehavior.FINISH) {
-                messageSnackbar.addCallback(
-                    new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                      @Override
-                      public void onDismissed(Snackbar transientBottomBar, int event) {
-                        super.onDismissed(transientBottomBar, event);
-                        activity.finish();
-                      }
-                    });
-              }
+        () -> {
+          messageSnackbar =
+              Snackbar.make(
+                  activity.findViewById(android.R.id.content),
+                  message, Snackbar.LENGTH_INDEFINITE);
+          messageSnackbar.getView().setBackgroundColor(BACKGROUND_COLOR);
+          if (dismissBehavior != DismissBehavior.HIDE) {
+            messageSnackbar.setAction("Dismiss", v -> messageSnackbar.dismiss());
+            if (dismissBehavior == DismissBehavior.FINISH) {
+              messageSnackbar.addCallback(
+                  new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                    @Override
+                    public void onDismissed(Snackbar transientBottomBar, int event) {
+                      super.onDismissed(transientBottomBar, event);
+                      activity.finish();
+                    }
+                  });
             }
-            ((TextView)
-                    messageSnackbar
-                        .getView()
-                        .findViewById(android.support.design.R.id.snackbar_text))
-                .setMaxLines(maxLines);
-            messageSnackbar.show();
           }
+          ((TextView)
+                  messageSnackbar
+                      .getView()
+                      .findViewById(android.support.design.R.id.snackbar_text))
+              .setMaxLines(maxLines);
+          messageSnackbar.show();
         });
   }
 }
