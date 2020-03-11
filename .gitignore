@@ -23,3 +23,5 @@ work/build/
 # Compiled Sceneform Assets
 *.sfb
 
+google-services.json
+
