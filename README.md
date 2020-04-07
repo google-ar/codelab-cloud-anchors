@@ -2,7 +2,7 @@ ARCore Cloud Anchors Codelab
 =============================
 Copyright (c) 2018 Google Inc.  All rights reserved.
 
-These are sample Android Studio projects indended for use with the Google AR Codelabs.
+These are sample Android Studio projects intended for use with the Google AR Codelabs.
 
 Please note, we do not accept pull requests.
 
