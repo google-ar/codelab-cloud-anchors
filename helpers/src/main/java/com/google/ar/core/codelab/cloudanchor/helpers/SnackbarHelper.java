@@ -15,8 +15,8 @@
 package com.google.ar.core.codelab.cloudanchor.helpers;
 
 import android.app.Activity;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import android.widget.TextView;
 
 /**
@@ -36,6 +36,14 @@ public final class SnackbarHelper {
       lastMessage = message;
       show(activity, message, DismissBehavior.HIDE);
     }
+  }
+
+  /**
+   * Shows a snackbar with a given error message. When dismissed, will finish the activity. Useful
+   * for notifying errors, where no further interaction with the activity is possible.
+   */
+  public void showError(Activity activity, String errorMessage) {
+    show(activity, errorMessage, DismissBehavior.FINISH);
   }
 
   private void show(
@@ -62,9 +70,29 @@ public final class SnackbarHelper {
         ((TextView)
                 messageSnackbar
                     .getView()
-                    .findViewById(android.support.design.R.id.snackbar_text))
+                    .findViewById(com.google.android.material.R.id.snackbar_text))
             .setMaxLines(maxLines);
         messageSnackbar.show();
       });
+  }
+  /**
+   * Hides the currently showing snackbar, if there is one. Safe to call from any thread. Safe to
+   * call even if snackbar is not shown.
+   */
+  public void hide(Activity activity) {
+    if (!isShowing()) {
+      return;
+    }
+    lastMessage = "";
+    Snackbar messageSnackbarToHide = messageSnackbar;
+    messageSnackbar = null;
+    activity.runOnUiThread(messageSnackbarToHide::dismiss);
+  }
+  public boolean isShowing() {
+    return messageSnackbar != null;
+  }
+
+  public String getLastMessage() {
+    return lastMessage;
   }
 }

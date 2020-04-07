@@ -42,8 +42,8 @@ public class CloudAnchorManager {
    * available.
    */
   public synchronized void hostCloudAnchor(
-      Session session, Anchor anchor, CloudAnchorListener listener) {
-    Anchor newAnchor = session.hostCloudAnchor(anchor);
+      Session session, Anchor anchor, int ttl, CloudAnchorListener listener) {
+    Anchor newAnchor = session.hostCloudAnchorWithTtl(anchor, ttl);
     pendingAnchors.put(newAnchor, listener);
   }
 

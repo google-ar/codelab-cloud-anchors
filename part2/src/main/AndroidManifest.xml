@@ -19,8 +19,8 @@
     package="com.google.ar.core.codelab.cloudanchor">
 
   <uses-permission android:name="android.permission.CAMERA"/>
-
   <uses-permission android:name="android.permission.INTERNET"/>
+
   <!-- This tag indicates that this application requires ARCore.  This results in the application
        only being visible in the Google Play Store on devices that support ARCore. -->
   <uses-feature android:name="android.hardware.camera.ar" android:required="true"/>

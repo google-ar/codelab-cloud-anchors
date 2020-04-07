@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.google.ar.core.codelab.cloudanchor"
 
         minSdkVersion 26
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }
@@ -23,7 +23,9 @@ android {
 }
 
 dependencies {
+    // ARCore Library
+    implementation 'com.google.ar:core:1.23.0'
+
     implementation project(":helpers")
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.8.0"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 }

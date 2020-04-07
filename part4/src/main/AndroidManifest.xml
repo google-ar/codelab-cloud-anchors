@@ -19,13 +19,11 @@
     package="com.google.ar.core.codelab.cloudanchor">
 
   <uses-permission android:name="android.permission.CAMERA"/>
-
   <uses-permission android:name="android.permission.INTERNET"/>
+
   <!-- This tag indicates that this application requires ARCore.  This results in the application
        only being visible in the Google Play Store on devices that support ARCore. -->
-  <uses-feature
-      android:name="android.hardware.camera.ar"
-      android:required="true"/>
+  <uses-feature android:name="android.hardware.camera.ar" android:required="true"/>
 
   <application
       android:allowBackup="false"
@@ -37,11 +35,11 @@
 
     <activity
         android:name=".MainActivity"
+        android:label="@string/app_name"
         android:configChanges="orientation|screenSize"
         android:exported="true"
-        android:label="@string/app_name"
-        android:screenOrientation="locked"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        android:screenOrientation="locked">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
@@ -51,8 +49,6 @@
          Store downloading and installing ARCore along with the application.
          Application code must still call ArCoreApk.requestInstall() before beginning an ARCore
          sessions, in case the user uninstalls ARCore for any reason. -->
-    <meta-data
-        android:name="com.google.ar.core"
-        android:value="required"/>
+    <meta-data android:name="com.google.ar.core" android:value="required" />
   </application>
 </manifest>

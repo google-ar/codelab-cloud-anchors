@@ -17,9 +17,10 @@
 package com.google.ar.core.codelab.cloudanchor;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import com.google.ar.core.codelab.cloudanchor.helpers.FullScreenHelper;
 
 /**
  * Main Activity for the Cloud Anchors Codelab.
@@ -30,8 +31,8 @@ import android.support.v7.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
   @Override
-  protected void onCreate(Bundle bundle) {
-    super.onCreate(bundle);
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
     FragmentManager fm = getSupportFragmentManager();
@@ -40,5 +41,11 @@ public class MainActivity extends AppCompatActivity {
       frag = new CloudAnchorFragment();
       fm.beginTransaction().add(R.id.fragment_container, frag).commit();
     }
+  }
+
+  @Override
+  public void onWindowFocusChanged(boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    FullScreenHelper.setFullScreenOnWindowFocusChanged(this, hasFocus);
   }
 }
