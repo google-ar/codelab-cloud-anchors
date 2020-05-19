@@ -86,13 +86,7 @@ public final class SnackbarHelper {
     lastMessage = "";
     Snackbar messageSnackbarToHide = messageSnackbar;
     messageSnackbar = null;
-    activity.runOnUiThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            messageSnackbarToHide.dismiss();
-          }
-        });
+    activity.runOnUiThread(messageSnackbarToHide::dismiss);
   }
   public boolean isShowing() {
     return messageSnackbar != null;
