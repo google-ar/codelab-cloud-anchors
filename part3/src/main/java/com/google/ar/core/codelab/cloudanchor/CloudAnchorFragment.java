@@ -37,6 +37,7 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Config.CloudAnchorMode;
 import com.google.ar.core.Frame;
+import com.google.ar.core.Future;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Point;
@@ -46,7 +47,6 @@ import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.codelab.cloudanchor.helpers.CameraPermissionHelper;
-import com.google.ar.core.codelab.cloudanchor.helpers.CloudAnchorManager;
 import com.google.ar.core.codelab.cloudanchor.helpers.ResolveDialogFragment;
 import com.google.ar.core.codelab.cloudanchor.helpers.SnackbarHelper;
 import com.google.ar.core.codelab.cloudanchor.helpers.StorageManager;
@@ -84,7 +84,6 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
 
   private Session session;
   private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
-  private final CloudAnchorManager cloudAnchorManager = new CloudAnchorManager();
   private DisplayRotationHelper displayRotationHelper;
   private TrackingStateHelper trackingStateHelper;
   private TapHelper tapHelper;
@@ -103,6 +102,8 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
 
   @Nullable
   private Anchor currentAnchor = null;
+  @Nullable
+  private Future future = null;
 
   private Button resolveButton;
 
@@ -285,8 +286,6 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
       // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
       // camera framerate.
       Frame frame = session.update();
-      cloudAnchorManager.onUpdate();
-
       Camera camera = frame.getCamera();
 
       // Handle one tap per frame.
@@ -376,7 +375,7 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
           currentAnchor = hit.createAnchor();
           getActivity().runOnUiThread(() -> resolveButton.setEnabled(false));
           messageSnackbarHelper.showMessage(getActivity(), "Now hosting anchor...");
-          cloudAnchorManager.hostCloudAnchor(session, currentAnchor, 300, this::onHostedAnchorAvailable);
+          future = session.hostCloudAnchorAsync(currentAnchor, 300, this::onHostComplete);
           break;
         }
       }
@@ -395,33 +394,40 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
     return false;
   }
 
-  private synchronized void onClearButtonPressed() {
+  private void onClearButtonPressed() {
     // Clear the anchor from the scene.
-    cloudAnchorManager.clearListeners();
+    if (currentAnchor != null) {
+      currentAnchor.detach();
+      currentAnchor = null;
+    }
+
+    // Cancel any ongoing async operations.
+    if (future != null) {
+      future.cancel();
+      future = null;
+    }
+
     resolveButton.setEnabled(true);
-    currentAnchor = null;
   }
 
-  private synchronized void onHostedAnchorAvailable(Anchor anchor) {
-    CloudAnchorState cloudState = anchor.getCloudAnchorState();
+  private void onHostComplete(String cloudAnchorId, CloudAnchorState cloudState) {
     if (cloudState == CloudAnchorState.SUCCESS) {
       int shortCode = storageManager.nextShortCode(getActivity());
       storageManager.storeUsingShortCode(getActivity(), shortCode, anchor.getCloudAnchorId());
       messageSnackbarHelper.showMessage(
           getActivity(), "Cloud Anchor Hosted. Short code: " + shortCode);
-      currentAnchor = anchor;
     } else {
       messageSnackbarHelper.showMessage(getActivity(), "Error while hosting: " + cloudState.toString());
     }
   }
 
-  private synchronized void onResolveButtonPressed() {
+  private void onResolveButtonPressed() {
     ResolveDialogFragment dialog = ResolveDialogFragment.createWithOkListener(
         this::onShortCodeEntered);
     dialog.show(getActivity().getSupportFragmentManager(), "Resolve");
   }
 
-  private synchronized void onShortCodeEntered(int shortCode) {
+  private void onShortCodeEntered(int shortCode) {
     String cloudAnchorId = storageManager.getCloudAnchorId(getActivity(), shortCode);
     if (cloudAnchorId == null || cloudAnchorId.isEmpty()) {
       messageSnackbarHelper.showMessage(
@@ -430,14 +436,11 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
       return;
     }
     resolveButton.setEnabled(false);
-    cloudAnchorManager.resolveCloudAnchor(
-        session,
-        cloudAnchorId,
-        anchor -> onResolvedAnchorAvailable(anchor, shortCode));
+    future = session.resolveCloudAnchorAsync(
+        cloudAnchorId, (anchor, cloudState) -> onResolveComplete(anchor, cloudState, shortCode));
   }
 
-  private synchronized void onResolvedAnchorAvailable(Anchor anchor, int shortCode) {
-    CloudAnchorState cloudState = anchor.getCloudAnchorState();
+  private void onResolveComplete(Anchor anchor, CloudAnchorState cloudState, int shortCode) {
     if (cloudState == CloudAnchorState.SUCCESS) {
       messageSnackbarHelper.showMessage(getActivity(), "Cloud Anchor Resolved. Short code: " + shortCode);
       currentAnchor = anchor;

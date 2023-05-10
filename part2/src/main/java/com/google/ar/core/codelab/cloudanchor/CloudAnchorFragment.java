@@ -37,6 +37,7 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Config.CloudAnchorMode;
 import com.google.ar.core.Frame;
+import com.google.ar.core.Future;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Point;
@@ -46,7 +47,6 @@ import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.codelab.cloudanchor.helpers.CameraPermissionHelper;
-import com.google.ar.core.codelab.cloudanchor.helpers.CloudAnchorManager;
 import com.google.ar.core.codelab.cloudanchor.helpers.SnackbarHelper;
 import com.google.ar.core.codelab.cloudanchor.helpers.TapHelper;
 import com.google.ar.core.codelab.cloudanchor.helpers.TrackingStateHelper;
@@ -82,7 +82,6 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
 
   private Session session;
   private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
-  private final CloudAnchorManager cloudAnchorManager = new CloudAnchorManager();
   private DisplayRotationHelper displayRotationHelper;
   private TrackingStateHelper trackingStateHelper;
   private TapHelper tapHelper;
@@ -100,6 +99,8 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
 
   @Nullable
   private Anchor currentAnchor = null;
+  @Nullable
+  private Future future = null;
 
   @Override
   public void onAttach(@NonNull Context context) {
@@ -277,8 +278,6 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
       // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
       // camera framerate.
       Frame frame = session.update();
-      cloudAnchorManager.onUpdate();
-
       Camera camera = frame.getCamera();
 
       // Handle one tap per frame.
@@ -367,7 +366,7 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
           // in the correct position relative both to the world and to the plane.
           currentAnchor = hit.createAnchor();
           messageSnackbarHelper.showMessage(getActivity(), "Now hosting anchor...");
-          cloudAnchorManager.hostCloudAnchor(session, currentAnchor, 300, this::onHostedAnchorAvailable);
+          future = session.hostCloudAnchorAsync(currentAnchor, 300, this::onHostComplete);
           break;
         }
       }
@@ -386,18 +385,23 @@ public class CloudAnchorFragment extends Fragment implements GLSurfaceView.Rende
     return false;
   }
 
-  private synchronized void onClearButtonPressed() {
+  private void onClearButtonPressed() {
     // Clear the anchor from the scene.
-    cloudAnchorManager.clearListeners();
-    currentAnchor = null;
+    if (currentAnchor != null) {
+      currentAnchor.detach();
+      currentAnchor = null;
+    }
+
+    // Cancel any ongoing async operations.
+    if (future != null) {
+      future.cancel();
+      future = null;
+    }
   }
 
-  private synchronized void onHostedAnchorAvailable(Anchor anchor) {
-    CloudAnchorState cloudState = anchor.getCloudAnchorState();
+  private void onHostComplete(String cloudAnchorId, CloudAnchorState cloudState) {
     if (cloudState == CloudAnchorState.SUCCESS) {
-      messageSnackbarHelper.showMessage(
-          getActivity(), "Cloud Anchor Hosted. ID: " + anchor.getCloudAnchorId());
-      currentAnchor = anchor;
+      messageSnackbarHelper.showMessage(getActivity(), "Cloud Anchor Hosted. ID: " + cloudAnchorId);
     } else {
       messageSnackbarHelper.showMessage(getActivity(), "Error while hosting: " + cloudState.toString());
     }
